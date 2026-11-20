@@ -15,17 +15,17 @@ variable "target_group_arn" {
 
 variable "desired_capacity" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "max_size" {
   type    = number
-  default = 2
+  default = 3
 }
 
 variable "min_size" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "tags" {
