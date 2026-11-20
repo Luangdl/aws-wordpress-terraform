@@ -74,6 +74,8 @@ resource "aws_subnet" "private_1b" {
   )
 }
 
+#--------------------Route tables and associations--------------------------
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this.id
 
@@ -100,54 +102,98 @@ resource "aws_route_table_association" "public_1b" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table" "private" {
+resource "aws_route_table" "private_1a" {
   vpc_id = aws_vpc.this.id
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.this.id
+    nat_gateway_id = aws_nat_gateway.nat_1a.id
   }
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.vpc_name}-private-rt"
+      Name = "${var.vpc_name}-private-rt-1a"
+    }
+  )
+}
+
+resource "aws_route_table" "private_1b" {
+  vpc_id = aws_vpc.this.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_1b.id
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.vpc_name}-private-rt-1b"
     }
   )
 }
 
 resource "aws_route_table_association" "private_1a" {
   subnet_id      = aws_subnet.private_1a.id
-  route_table_id = aws_route_table.private.id
+  route_table_id = aws_route_table.private_1a.id
 }
 
 resource "aws_route_table_association" "private_1b" {
   subnet_id      = aws_subnet.private_1b.id
-  route_table_id = aws_route_table.private.id
+  route_table_id = aws_route_table.private_1b.id
 }
 
-#------------------------------------------------NAT Gateway-------
+#------------------------------------------------NAT Gateways-------
 
 
-resource "aws_eip" "nat" {
+resource "aws_eip" "nat_1a" {
   domain = "vpc"
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.vpc_name}-nat-eip"
+      Name = "${var.vpc_name}-nat-eip-1a"
     }
   )
 }
 
-resource "aws_nat_gateway" "this" {
-  allocation_id = aws_eip.nat.id
+resource "aws_nat_gateway" "nat_1a" {
+  allocation_id = aws_eip.nat_1a.id
   subnet_id     = aws_subnet.public_1a.id
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.vpc_name}-nat-gateway"
+      Name = "${var.vpc_name}-nat-gateway-1a"
+    }
+  )
+
+  depends_on = [
+    aws_internet_gateway.this
+  ]
+}
+
+
+resource "aws_eip" "nat_1b" {
+  domain = "vpc"
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.vpc_name}-nat-eip-1b"
+    }
+  )
+}
+
+resource "aws_nat_gateway" "nat_1b" {
+  allocation_id = aws_eip.nat_1b.id
+  subnet_id     = aws_subnet.public_1b.id
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.vpc_name}-nat-gateway-1b"
     }
   )
 

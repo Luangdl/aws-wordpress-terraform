@@ -16,6 +16,10 @@ output "private_subnet_ids" {
   ]
 }
 
-output "private_route_table_id" {
-  value = aws_route_table.private.id
+output "private_route_table_ids" {
+  description = "Private route table IDs"
+  value = [
+    aws_route_table.private_1a.id,
+    aws_route_table.private_1b.id
+  ]
 }
