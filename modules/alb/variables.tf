@@ -20,3 +20,9 @@ variable "alb_security_group_id" {
 variable "certificate_arn" {
   type = string
 }
+
+variable "origin_verify_header_value" {
+  description = "Secret header used to validate CloudFront requests"
+  type        = string
+  sensitive   = true
+}

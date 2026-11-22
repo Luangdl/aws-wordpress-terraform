@@ -68,10 +68,31 @@ resource "aws_lb_listener" "wordpress_listener_https" {
   certificate_arn   = var.certificate_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.wordpress_target_group.arn
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Forbidden"
+      status_code  = "403"
+    }
   }
 }
 
+resource "aws_lb_listener_rule" "allow_cloudfront" {
+  listener_arn = aws_lb_listener.wordpress_listener_https.arn
+  priority     = 1
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.wordpress_target_group.arn
+  }
+
+  condition {
+    http_header {
+      http_header_name = "X-Origin-Verify"
+      values           = [var.origin_verify_header_value]
+    }
+  }
+}
 
 # ssl_policy e certificate_arn são usados apenas para listeners HTTPS na porta 443.

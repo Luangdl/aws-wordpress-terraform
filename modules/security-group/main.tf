@@ -1,22 +1,21 @@
+# lista oficial de IPs que a AWS mantém para os servidores de origem do CloudFront.
+data "aws_ec2_managed_prefix_list" "cloudfront_origin_facing" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
 resource "aws_security_group" "alb_sg" {
   name        = "wordpress-alb-sg"
-  description = "Allow HTTP and HTTPS access to ALB"
+  description = "Allow HTTPS access to ALB"
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "Allow HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = var.allowed_http_cidr_blocks
-  }
-
-  ingress {
-    description = "Allow HTTPS"
+    description = "Allow HTTPS only from CloudFront"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.allowed_https_cidr_blocks
+    prefix_list_ids = [
+      data.aws_ec2_managed_prefix_list.cloudfront_origin_facing.id
+    ]
   }
 
   egress {

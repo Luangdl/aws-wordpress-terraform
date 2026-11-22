@@ -2,8 +2,13 @@ resource "aws_cloudfront_distribution" "wordpress_cdn" {
   web_acl_id = var.web_acl_arn
 
   origin {
-    domain_name = var.alb_dns_name
+    domain_name = var.origin_domain_name
     origin_id   = "wordpress-alb-origin"
+
+    custom_header {
+      name  = "X-Origin-Verify"
+      value = var.origin_verify_header_value
+    }
 
     custom_origin_config {
       http_port              = 80
@@ -15,6 +20,7 @@ resource "aws_cloudfront_distribution" "wordpress_cdn" {
 
   enabled         = true
   is_ipv6_enabled = true
+  aliases         = ["wordpress-lab.online"]
   comment         = "CloudFront para WordPress ALB"
 
   default_cache_behavior {
@@ -45,7 +51,9 @@ resource "aws_cloudfront_distribution" "wordpress_cdn" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = merge(

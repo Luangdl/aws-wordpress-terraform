@@ -10,11 +10,12 @@ module "vpc" {
 module "alb" {
   source = "./modules/alb"
 
-  vpc_id                = module.vpc.vpc_id
-  public_subnet_ids     = module.vpc.public_subnet_ids
-  alb_security_group_id = module.security_group.alb_security_group_id
-  certificate_arn       = aws_acm_certificate.cert.arn
-  tags                  = local.tags
+  vpc_id                     = module.vpc.vpc_id
+  public_subnet_ids          = module.vpc.public_subnet_ids
+  alb_security_group_id      = module.security_group.alb_security_group_id
+  certificate_arn            = aws_acm_certificate.cert.arn
+  origin_verify_header_value = var.origin_verify_header_value
+  tags                       = local.tags
 }
 
 module "security_group" {
@@ -53,9 +54,11 @@ module "efs" {
 module "cloudfront" {
   source = "./modules/cloudfront"
 
-  alb_dns_name = module.alb.alb_dns_name
-  web_acl_arn  = module.waf.web_acl_arn
-  tags         = local.tags
+  origin_domain_name         = "origin.wordpress-lab.online"
+  origin_verify_header_value = var.origin_verify_header_value
+  certificate_arn            = aws_acm_certificate.cert.arn
+  web_acl_arn                = module.waf.web_acl_arn
+  tags                       = local.tags
 }
 
 module "waf" {

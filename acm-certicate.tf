@@ -1,6 +1,7 @@
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "wordpress-lab.online"
-  validation_method = "DNS"
+  domain_name               = "wordpress-lab.online"
+  subject_alternative_names = ["origin.wordpress-lab.online"]
+  validation_method         = "DNS"
 
   tags = merge(
     local.tags, {

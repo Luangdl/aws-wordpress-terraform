@@ -14,3 +14,9 @@ variable "region" {
   description = "AWS region"
   default     = "us-east-1"
 }
+
+variable "origin_verify_header_value" {
+  description = "Secret header value used to authenticate CloudFront requests to ALB"
+  type        = string
+  sensitive   = true
+}
